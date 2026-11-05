@@ -37,6 +37,24 @@ o melhor possível no PC do Breno, sem quebrar a imagem.
 - [Claude] Opção `LICHII_MSVC_AVX2` no CMake (`/arch:AVX2` no MSVC) e entrada `msvc_avx2` no
   workflow `release-binaries.yml`, junto com `windows_only` (compila só o Windows MSVC).
 
+## Referência: Selevet Eglantine (código público)
+
+<https://github.com/sylvieistaken/selevet-eglantine>. Fork de desempenho do Eglantine (build 31/104),
+afinado para Mario Kart World num **Ryzen 5 5500 + 16 GB** (CPU quase igual à do Breno). As builds
+"Selevet + Lichii 67 zelda" que o Breno testou NÃO estão publicadas lá (commits `b8d34f6ee4` e
+`c273ff60b6` não existem no repo), mas as técnicas de desempenho estão:
+
+- Compilação: Clang 23 + ThinLTO + `-march=x86-64-v3` + PGO treinado no jogo (`tuned/README.md`,
+  `eglantine.profdata`). As builds MSVC do Lichii não usam nada disso.
+- Commits "Performance build 1–6": submits mais cedo para a GPU, acquire peek, prioridade alta,
+  downloads em lote de command lists, acquires em fila, pular pipelines nativos ainda não
+  compilados, sparse remap, tabela de mapeamento da GPU que só compara o intervalo alterado.
+- `NX2_GPU_THREAD_SPLIT.md`, `NX2_NOTES.md`: medições do autor.
+
+Ideia para o Codex: avaliar portar esses commits para `breno-oot-otimizado` (um por vez, medindo), e
+uma build Windows com clang-cl + ThinLTO + x86-64-v3 que continue com o FFmpeg com AV1 (a PGO/MinGW
+atual perde o AV1 e o menu do Zelda fica preto).
+
 ## Próximos passos
 
 1. Medir a build AVX2 contra a build original do Frizti no mesmo lugar do jogo (mesmo save, mesma
