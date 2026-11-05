@@ -53,6 +53,15 @@ GitHub → Actions → `release-binaries` → Run workflow, escolher a branch, m
 `windows_only` e `msvc_avx2`, desmarcar `publish_release`. O artefato
 `lichii-windows-x86_64-<commit>` sai em ~45–60 min (menos quando o cache já existe).
 
+## Divisão de trabalho (pedido do Breno)
+
+- **Codex: o trabalho pesado.** Ler e mapear o código, instrumentar, rodar e comparar medições,
+  escrever as otimizações, disparar as compilações e corrigir o que quebrar.
+- **Claude: o trabalho curto e decisivo.** Escolher a direção a partir dos logs, revisar os PRs
+  do Codex antes de juntar, decidir o que entra em `breno-oot-otimizado`, ajudar quando o Codex
+  travar num problema, e instalar/testar as builds no PC do Breno.
+- Quando o Codex terminar uma etapa, ele anota aqui e abre o PR; o Breno avisa o Claude para revisar.
+
 ## Regras de convivência
 
 - Cada um trabalha na própria branch (`claude/...`, `codex/...`) e abre um PR para
