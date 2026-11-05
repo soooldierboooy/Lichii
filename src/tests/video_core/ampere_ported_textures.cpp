@@ -286,3 +286,38 @@ TEST_CASE("Ampere array depth comparisons support nonlegacy descriptor bindings"
     REQUIRE(std::equal(alternate.begin(), alternate.end(), begin));
     REQUIRE(begin + alternate.size() + 1 == mixed.instructions.end());
 }
+
+// TLD4.DC R12/R14, R24 (x, y in R24, R25), R28 (reference), 2D, RGBA: the full-screen pass of
+// 0400486024DEC000 that was rejected as a texture gather mode and left the frame black.
+TEST_CASE("Ampere depth comparison gathers become Maxwell TLD4.DC",
+          "[video_core][ampere][gather]") {
+    constexpr Instruction gather{{0x180c7b63, 0x30800e1c, 0x001e4f0e, 0x000f4200}};
+    const auto lowered = LowerToMaxwell(std::array{gather, Exit});
+    INFO(lowered.error);
+    REQUIRE(lowered);
+    REQUIRE(lowered.required_texture_buffer == 2);
+    const u64 pred = 7ULL << 16;
+    const std::array<u64, 8> expected{
+        Copy(pred, 250, 24),
+        Copy(pred, 251, 25),
+        Copy(pred, 246, 28),
+        0xc800000000000000ULL | pred | 250 | (250ULL << 8) | (246ULL << 20) | (2ULL << 28) |
+            (15ULL << 31) | (14ULL << 36) | (1ULL << 50) | (7ULL << 51),
+        Copy(pred, 12, 250),
+        Copy(pred, 13, 251),
+        Copy(pred, 14, 252),
+        Copy(pred, 15, 253),
+    };
+    REQUIRE(std::equal(expected.begin(), expected.end(), lowered.instructions.begin()));
+
+    // Depth comparison has no offset, per-tap, half or uniform-handle form here.
+    for (const u32 bit : {76U, 77U, 79U}) {
+        auto invalid = gather;
+        invalid.words[bit / 32] ^= 1U << (bit % 32);
+        INFO("bit " << bit);
+        REQUIRE_FALSE(LowerToMaxwell(std::array{invalid, Exit}));
+    }
+    auto invalid = gather;
+    invalid.words[0] = 0x180c7f63;
+    REQUIRE_FALSE(LowerToMaxwell(std::array{invalid, Exit}));
+}
