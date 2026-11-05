@@ -346,6 +346,19 @@ public:
     Id write_global_func_u32x2{};
     Id write_global_func_u32x4{};
     Id atomic_add_global_func_u32{};
+    // Routed 32-bit global atomics other than IAdd, indexed by GlobalAtomicOpU32.
+    enum class GlobalAtomicOpU32 : size_t {
+        SMin,
+        UMin,
+        SMax,
+        UMax,
+        And,
+        Or,
+        Xor,
+        Exchange,
+        Count,
+    };
+    std::array<Id, static_cast<size_t>(GlobalAtomicOpU32::Count)> atomic_global_funcs_u32{};
 
     bool need_input_position_indirect{};
     Id input_position{};
