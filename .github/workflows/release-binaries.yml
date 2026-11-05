@@ -11,6 +11,10 @@ on:
         description: Build only the Windows (MSVC) binary
         type: boolean
         default: false
+      msvc_avx2:
+        description: Compile the Windows (MSVC) binary with AVX2 (needs a Zen 2 / Haswell or newer CPU)
+        type: boolean
+        default: false
   push:
     branches:
       - nx2-experimental
@@ -299,6 +303,7 @@ jobs:
           -DENABLE_UPDATE_CHECKER=ON
           -DLICHII_BUILD_TAG=build-${{ github.run_number }}
           -DLICHII_BUILD_PLATFORM=${{ matrix.platform }}
+          -DLICHII_MSVC_AVX2=${{ inputs.msvc_avx2 && 'ON' || 'OFF' }}
           -DUSE_DISCORD_PRESENCE=OFF
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=sccache

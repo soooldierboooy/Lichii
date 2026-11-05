@@ -387,6 +387,12 @@ if (CXX_GCC OR CXX_CLANG)
     endif()
 endif()
 
+# MSVC has no -march; /arch:AVX2 lets it use AVX2 in host code (Zen 2 and newer, Haswell and newer).
+option(LICHII_MSVC_AVX2 "Build MSVC binaries with /arch:AVX2" OFF)
+if (MSVC AND LICHII_MSVC_AVX2)
+    add_compile_options(/arch:AVX2)
+endif()
+
 # Configure C++ standard
 # ===========================
 
